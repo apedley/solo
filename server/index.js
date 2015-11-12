@@ -16,8 +16,10 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('draw', {
       x: data.x,
       y: data.y,
-      type: data.type
+      type: data.type,
+      highlighter: data.highlighter
     });
+    console.log(data);
   });
 
   socket.on('clear', function(data) {

@@ -21,8 +21,23 @@ var canvasLayer = function(location, id, height, width) {
   this.context = this.element.getContext('2d');
 };
 
-canvasLayer.prototype.draw = function(x, y, type) {
+canvasLayer.prototype.drawFromServer = function(x, y, type, highlighter) {
+  this.setHighlighter(highlighter);
+  if (type === 'dragstart') {
+    this.context.beginPath();
+    return this.context.moveTo(x, y);
+  } else if (type === 'drag') {
+    this.context.lineTo(x, y);
+    return this.context.stroke();
+  } else {
+    return this.context.closePath();
+  }  
+  this.setHighlighter(App.highlighter);
+}
 
+canvasLayer.prototype.draw = function(x, y, type, highlighter) {
+  console.log(App.highlighter);
+  this.setHighlighter(App.highlighter);
   if (type === 'dragstart') {
     this.context.beginPath();
     return this.context.moveTo(x, y);
@@ -34,6 +49,16 @@ canvasLayer.prototype.draw = function(x, y, type) {
   }
 };
 
+canvasLayer.prototype.setHighlighter = function(on) {
+  if (on) {
+    this.context.strokeStyle = "rgba(255, 255, 102, .05)";
+    this.context.lineWidth = 8;
+  } else {
+    this.context.strokeStyle = "#000"
+    this.context.lineWidth = 3;
+  }
+}
+
 canvasLayer.prototype.changeColor = function(color) {
   this.context.strokeStyle = color;
 }
@@ -43,6 +68,7 @@ canvasLayer.prototype.clear = function() {
 }
 
 App.draw = function(x, y, type) {
+  this.setHighlighter(App.highlighter);
   if (type === 'dragstart') {
     App.board.context.beginPath();
     App.board.context.moveTo(x, y);
@@ -71,9 +97,10 @@ App.loadPage = function(url, sendLoad) {
 };
 
 App.init = function() {
+  App.highlighter = false;
   App.socket = io.connect();
   App.socket.on('draw', function(data) {
-    App.draw(data.x, data.y, data.type);
+    App.board.drawFromServer(data.x, data.y, data.type, data.highlighter);
   });
   App.socket.on('clear', function() {
     App.board.clear();
@@ -96,7 +123,8 @@ App.init = function() {
     App.socket.emit('draw', {
       x: x,
       y: y,
-      type: type
+      type: type,
+      highlighter: App.highlighter
     });
   });
 
@@ -108,6 +136,12 @@ App.init = function() {
   $("#urlform").submit(function(e) {
     e.preventDefault();
     App.loadPage($("#urlinput").val(), true);
+  });
+
+  $("[name='highlight']").bootstrapSwitch();
+  $('input[name="highlight"]').on('switchChange.bootstrapSwitch', function(event, state) {
+    App.highlighter = state;
+    App.board.setHighlighter(state);
   });
 }
 
