@@ -56,7 +56,9 @@ App.draw = function(x, y, type) {
 
 App.loadPage = function(url, sendLoad) {
   App.board.clear();
-  var imageUrl = 'http://' + window.location.host + '/image?url=' + url;
+  var height = $(window).height();
+  var width = $(window).width();
+  var imageUrl = 'http://' + window.location.host + '/image?url=' + url + '&width=' + width + '&height=' + height;
   var $img = $('<img>', {src: imageUrl});
   $img.load(function() {
     App.board.context.drawImage(this, 0, 0);
