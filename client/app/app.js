@@ -37,7 +37,7 @@ canvasLayer.prototype.addText = function(text) {
   this.context.strokeText(text,10,50);
 }
 App.init = function() {
-  App.socket = io.connect('http://10.0.0.141:8000');
+  App.socket = io.connect();
   App.socket.on('draw', function(data) {
     App.draw(data.x, data.y, data.type);
   });
