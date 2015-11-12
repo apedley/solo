@@ -19,5 +19,15 @@ io.on('connection', function (socket) {
       type: data.type
     });
   });
+
+  socket.on('clear', function(data) {
+    socket.broadcast.emit('clear');
+  });
+
+  socket.on('loadpage', function(data) {
+    socket.broadcast.emit('loadpage', {
+      url: data.url
+    });
+  });
 });
 
